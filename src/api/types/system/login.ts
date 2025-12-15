@@ -6,6 +6,7 @@ export type LoginParams = {
   grantType: string;
   iv: string;
   requestId: string;
+  moveX?: number;
 };
 
 export type LoginInfo = {
@@ -39,4 +40,7 @@ export type UserInfo = {
 export type ChallengeInfo = {
   requestId: string;
   secretKey: string;
+  backgroundImage: string;
+  sliderImage: string;
+  y: number;
 };

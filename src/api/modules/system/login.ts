@@ -1,6 +1,7 @@
 import http from '@/api';
 import { ADMIN_MODULE } from '@/api/helper/prefix';
 import type { LoginParams, LoginInfo, ChallengeInfo } from '@/api/types/system/login';
+import type {CaptchaInfo} from "@/api/types/system/captcha";
 
 // 用户登录
 export const loginApi = (params: LoginParams) => {
@@ -33,7 +34,13 @@ export const getAuthRoleListApi = () => {
   return http.get<string[]>(ADMIN_MODULE + `/sys-menu/user/roles`, {});
 };
 
-// 获取一次性认证参数
-export const getChallengeApi = () => {
-  return http.get<ChallengeInfo>(ADMIN_MODULE + `/common/auth/challenge`, {});
+// 获取认证挑战参数（包含验证码）
+export const getChallengeApi = (clientId: string) => {
+  // 后端接口定义为 @RequestBody String clientId，接收纯文本内容
+  // 因此需要设置 Content-Type 为 text/plain，并将 clientId 直接作为请求体发送
+  return http.post<CaptchaInfo>(ADMIN_MODULE + `/z_login/challenge`, clientId, {
+    headers: {
+      'Content-Type': 'text/plain'
+    }
+  });
 };

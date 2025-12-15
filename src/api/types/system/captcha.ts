@@ -1,16 +1,13 @@
 // 登录模块
 export type CaptchaInfo = {
-  bigImageBase64: string;
-  bigWidth: number;
-  bigHeight: number;
-  smallImageBase64: string;
-  smallWidth: number;
-  smallHeight: number;
+  backgroundImage: string;
+  sliderImage: string;
   requestId: string;
-  posY: number;
+  y: number;
   secretKey: string;
 };
 export type CaptchaVerifyImageParams = {
   requestId: string;
-  moveEncrypted: string;
+  moveX: number;
 };
+

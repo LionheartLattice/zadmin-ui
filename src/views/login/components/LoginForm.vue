@@ -32,7 +32,7 @@
   <div v-if="IS_PREVIEW" style="margin-top: 20px; color: var(--el-color-warning)">
     <span>如无法登陆请联系作者：feiyuchuixue@163.com</span>
   </div>
-  <SliderCaptcha ref="captchaRef" @success="onSliderSuccess" @close="onCaptchaClose" />
+  <SliderCaptcha ref="captchaRef" :client-id="loginForm.clientId" @success="onSliderSuccess" @close="onCaptchaClose" />
 </template>
 
 <script setup lang="ts">
@@ -66,26 +66,37 @@ const loading = ref(false);
 const loginForm = reactive({
   username: '',
   password: '',
-  clientId: '',
+  clientId: import.meta.env.VITE_APP_CLIENT_ID,
   grantType: '',
   iv: '',
   requestId: ''
 });
 
-const onSliderSuccess = async () => {
+const onSliderSuccess = async (data: { requestId: string; secretKey: string; moveX: number }) => {
   // 缓存当前表单数据，避免后续被重置
   const formData = { ...loginForm };
-  await performLogin(formData);
+  await performLogin(formData, data);
 };
 
-const performLogin = async (formData = loginForm) => {
+const performLogin = async (formData = loginForm, captchaData?: { requestId: string; secretKey: string; moveX: number }) => {
   loading.value = true;
   try {
-    // 获取login的一次性校验接口
-    const challenge = await getChallengeApi();
+    let secret = '';
+    let requestId = '';
+    let moveX: number | undefined;
+
+    if (captchaData) {
+      secret = captchaData.secretKey;
+      requestId = captchaData.requestId;
+      moveX = captchaData.moveX;
+    } else {
+      // 获取login的一次性校验接口
+      const challenge = await getChallengeApi(formData.clientId);
+      secret = challenge.data.secretKey;
+      requestId = challenge.data.requestId;
+    }
+
     const pwd = formData.password;
-    const secret = challenge.data.secretKey;
-    const requestId = challenge.data.requestId;
     // 登录前校验，获取secretKey 和 requestId
     const { iv, encryptedData } = aesEncrypt(pwd, secret);
 
@@ -95,7 +106,8 @@ const performLogin = async (formData = loginForm) => {
       clientId: formData.clientId,
       grantType: formData.grantType,
       iv: iv, // aes加密的iv
-      requestId: requestId // 一次性请求id
+      requestId: requestId, // 一次性请求id
+      moveX: moveX
     };
     const { data } = await loginApi(params);
 

@@ -47,10 +47,11 @@
 <script setup lang="ts">
 import { ref, reactive, onBeforeUnmount, computed } from 'vue';
 import { Refresh } from '@element-plus/icons-vue';
-import { getImageCodeApi, verifyImageCodeApi } from '@/api/modules/system/captcha';
-import { aesEncrypt } from '@/utils';
+import { getChallengeApi } from '@/api/modules/system/login';
 
 defineOptions({ name: 'SliderCaptcha' });
+
+const props = defineProps<{ clientId: string }>();
 
 const dialogVisible = ref(false);
 const slideData = reactive({
@@ -59,7 +60,7 @@ const slideData = reactive({
   requestId: '',
   posY: 0,
   isSuccess: false,
-  bigWidth: 320,
+  bigWidth: 310,
   secretKey: ''
 });
 const slider = ref<HTMLDivElement | null>(null);
@@ -81,13 +82,13 @@ const acceptParams = () => {
 
 const fetchSlideData = async () => {
   try {
-    const { data } = await getImageCodeApi();
+    const { data } = await getChallengeApi(props.clientId);
     Object.assign(slideData, {
-      big: data.bigImageBase64,
-      small: data.smallImageBase64,
-      posY: data.posY,
+      big: data.backgroundImage,
+      small: data.sliderImage,
+      posY: data.y,
       requestId: data.requestId,
-      bigWidth: data.bigWidth,
+      bigWidth: 310, // Fixed width or from backend if available
       isSuccess: false,
       secretKey: data.secretKey
     });
@@ -123,7 +124,7 @@ const resetSlider = () => {
   slideData.posY = 0;
   slideData.isSuccess = false;
   slideData.secretKey = '';
-  slideData.bigWidth = 320;
+  slideData.bigWidth = 310;
   resetSliderPosition();
 };
 
@@ -210,51 +211,24 @@ const endDrag = async () => {
   const currentLeft = parseInt(slider.value.style.left || '0');
   ensureImageYPosition();
   if (currentLeft > 0) {
-    try {
-      isVerifying.value = true;
-      const { iv, encryptedData } = await aesEncrypt(currentLeft + '', slideData.secretKey);
-      await verifyImageCode({
-        requestId: slideData.requestId,
-        startTime,
-        moveEncrypted: encryptedData,
-        iv: iv
-      });
-    } catch (error) {
-      console.error('endDrag err:', error);
-      handleVerificationFailure();
-    } finally {
-      isVerifying.value = false;
-    }
+    // Emit success with data for parent to verify during login
+    emit('success', {
+      requestId: slideData.requestId,
+      secretKey: slideData.secretKey,
+      moveX: currentLeft
+    });
+    // We don't close immediately, let parent handle it or close it
+    // But usually we want to show some feedback?
+    // Since verification is deferred, we can just close or show "Verifying..."
+    // For now, let's just close it or let parent close it.
+    // Actually, the parent will call login. If login fails, it might reopen captcha.
+    // Let's just emit and wait.
   }
 };
 
-const verifyImageCode = async (params: { requestId: string; startTime: number; moveEncrypted: string; iv: string }) => {
-  try {
-    const { code } = await verifyImageCodeApi(params);
-    const duration = ((Date.now() - params.startTime) / 1000).toFixed(2);
-    overlayVisible.value = true;
-    if (code === '0000') {
-      slideData.isSuccess = true;
-      overlayMessage.value = `验证成功, 耗时${duration}s`;
-      setTimeout(() => {
-        emit('success');
-        closeSlider();
-      }, 1500);
-    } else {
-      handleVerificationFailure();
-    }
-  } catch {
-    handleVerificationFailure();
-  }
-};
 
-const handleVerificationFailure = () => {
-  slideData.isSuccess = false;
-  overlayMessage.value = '验证失败';
-  overlayVisible.value = true;
-  resetSliderPosition();
-  setTimeout(refreshSlider, 1000);
-};
+
+
 
 onBeforeUnmount(() => {
   document.removeEventListener('mousemove', onMouseMove);
