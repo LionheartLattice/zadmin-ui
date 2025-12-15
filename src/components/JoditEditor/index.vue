@@ -242,7 +242,7 @@ const mergedConfig = computed(() => {
 
 const createUploader = (uploadDir: string): any => ({
   url: `${baseUrl}${ADMIN_MODULE}/sys-file/batchUpload`,
-  headers: { Authorization: `Bearer ${userStore.token}` },
+  headers: { Authorization: `token:${userStore.token}` },
   method: 'POST',
   data: { dirTag: uploadDir },
   isSuccess(res: any) {
