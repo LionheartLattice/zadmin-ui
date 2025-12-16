@@ -34,7 +34,7 @@ export const getAuthRoleListApi = () => {
 export const getChallengeApi = (clientId: string) => {
   // 后端接口定义为 @RequestBody String clientId，接收纯文本内容
   // 因此需要设置 Content-Type 为 text/plain，并将 clientId 直接作为请求体发送
-  return http.post<CaptchaInfo>(ADMIN_MODULE + `/z_login/challenge`, clientId, {
+  return http.post<CaptchaInfo>(ADMIN_MODULE + `/captcha/challenge`, clientId, {
     headers: {
       'Content-Type': 'text/plain'
     }
