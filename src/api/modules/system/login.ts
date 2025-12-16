@@ -1,13 +1,13 @@
 import http from '@/api';
 import { ADMIN_MODULE } from '@/api/helper/prefix';
-import type { LoginParams, LoginInfo, ChallengeInfo } from '@/api/types/system/login';
+import type { LoginParams, LoginResult, ChallengeInfo } from '@/api/types/system/login';
 import type {CaptchaInfo} from "@/api/types/system/captcha";
 
 // 用户登录
 export const loginApi = (params: LoginParams) => {
   params.grantType = 'password';
   params.clientId = import.meta.env.VITE_APP_CLIENT_ID;
-  return http.post<LoginInfo>(ADMIN_MODULE + `/z_login/login`, params);
+  return http.post<LoginResult>(ADMIN_MODULE + `/z_login/login`, params);
 };
 
 // 获取菜单列表

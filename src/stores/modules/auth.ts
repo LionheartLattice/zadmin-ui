@@ -1,7 +1,40 @@
 import { defineStore } from 'pinia';
-import { getAuthButtonListApi, getAuthMenuListApi, getAuthRoleListApi } from '@/api/modules/system/login';
 import { getAllBreadcrumbList, getFlatMenuList, getShowMenuList } from '@/utils';
 import { computed, ref } from 'vue';
+import { useUserStore } from './user';
+
+// 转换后端菜单格式为前端格式
+function convertMenuFormat(backendMenus: any[]): Menu.MenuOptions[] {
+  if (!backendMenus || backendMenus.length === 0) {
+    return [];
+  }
+
+  return backendMenus.map(menu => {
+    const converted: Menu.MenuOptions = {
+      id: menu.id?.toString() || '',
+      pid: menu.pid?.toString() || '0',
+      path: menu.path || '',
+      name: menu.name || '',
+      sort: menu.sort || 0,
+      menuTypeCd: menu.menuTypeCd || '',
+      component: menu.component || '',
+      redirect: menu.redirect || '',
+      permissions: menu.permissions || '',
+      meta: {
+        icon: menu.icon || '',
+        title: menu.title || '',
+        isLink: '',
+        isHidden: menu.isHidden ? 'T' : 'F',
+        isFull: menu.isFull ? 'T' : 'F',
+        isAffix: menu.isAffix ? 'T' : 'F',
+        isKeepAlive: 'F',
+        useDataScope: 'F'
+      },
+      children: menu.children && menu.children.length > 0 ? convertMenuFormat(menu.children) : []
+    };
+    return converted;
+  });
+}
 
 export const useAuthStore = defineStore('auth', () => {
   const isLoaded = ref(false);
@@ -29,14 +62,30 @@ export const useAuthStore = defineStore('auth', () => {
 
   // Get AuthButtonList
   async function getAuthButtonList() {
-    const { data } = await getAuthButtonListApi();
-    authButtonList.value = data;
+    // 从菜单中提取按钮权限
+    const buttons: string[] = [];
+    const extractPermissions = (menus: Menu.MenuOptions[]) => {
+      menus.forEach(menu => {
+        if (menu.permissions) {
+          // 按钮权限可能是逗号分隔的字符串
+          const perms = menu.permissions.split(',').filter(p => p.trim());
+          buttons.push(...perms);
+        }
+        if (menu.children && menu.children.length > 0) {
+          extractPermissions(menu.children);
+        }
+      });
+    };
+    extractPermissions(authMenuList.value);
+    authButtonList.value = buttons;
   }
 
   // Get AuthMenuList
   async function getAuthMenuList() {
-    const { data } = await getAuthMenuListApi();
-    authMenuList.value = data;
+    const userStore = useUserStore();
+
+    // 从 userStore 获取登录时返回的菜单数据并转换格式
+    authMenuList.value = convertMenuFormat(userStore.menuList);
 
     const beforeMenuList: Menu.MenuOptions[] = [
       {
@@ -133,8 +182,10 @@ export const useAuthStore = defineStore('auth', () => {
 
   // Get AuthRoleList
   async function getAuthRoleList() {
-    const { data } = await getAuthRoleListApi();
-    authRoleList.value = data;
+    const userStore = useUserStore();
+    // 从用户信息中获取角色列表
+    const roles = userStore.userInfo.roleList || [];
+    authRoleList.value = roles.map((role: any) => role.roleName || role.permissions || '');
   }
 
   function clear() {

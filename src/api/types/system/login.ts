@@ -20,27 +20,87 @@ export type LoginInfo = {
   permissions: string[];
 };
 
-export type UserInfo = {
-  id?: number;
+
+export type ChallengeInfo = {
+  requestId: string; secretKey: string; backgroundImage: string; sliderImage: string; y: number;
+};
+
+
+// 菜单信息
+export interface MenuInfo {
+  id: string;
+  pid: string;
+  path: string;
+  name: string;
+  title: string;
+  icon: string;
+  component: string;
+  redirect: string;
+  sort: number;
+  deep: number;
+  menuTypeCd: string;
+  permissions: string;
+  isHidden: boolean;
+  hasChildren: boolean;
+  isLink: boolean;
+  isFull: boolean;
+  isAffix: boolean;
+  children?: MenuInfo[];
+}
+
+// 角色信息
+export interface RoleInfo {
+  id: string;
+  roleName: string;
+  remark: string;
+  permissions: string;
+}
+
+// 部门信息
+export interface DeptInfo {
+  id: string;
+  name: string;
+  pid: string;
+  deep: number;
+}
+
+// 租户信息
+export interface TenantInfo {
+  id: string;
+  name: string;
+  managerUserPhone: string;
+}
+
+// 用户信息
+export interface UserInfo {
+  id?: string;
   username: string;
   phone?: string;
   nickname?: string;
+  sex?: string;
+  birthday?: string;
   logo?: string;
-  age?: number;
-  sex?: number;
   idCard?: string;
   email?: string;
-  accountStatusCd?: string;
-  userTagCd?: string;
-  lastLoginTime?: string;
-  createTime?: string;
-  updateTime?: string;
-};
+  deptList?: DeptInfo[];
+  roleList?: RoleInfo[];
+  tenant?: TenantInfo;
+}
 
-export type ChallengeInfo = {
-  requestId: string;
-  secretKey: string;
-  backgroundImage: string;
-  sliderImage: string;
-  y: number;
-};
+// 登录返回数据
+export interface LoginResult {
+  accessToken: string;
+  id: string;
+  username: string;
+  phone?: string;
+  nickname?: string;
+  sex?: string;
+  birthday?: string;
+  logo?: string;
+  email?: string;
+  deptList?: DeptInfo[];
+  roleList?: RoleInfo[];
+  menuList?: MenuInfo[];
+  tenant?: TenantInfo;
+}
+
