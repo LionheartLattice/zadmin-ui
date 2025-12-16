@@ -1,6 +1,5 @@
 import { useUserStore } from '@/stores/modules/user';
 import { useAuthStore } from '@/stores/modules/auth';
-import { useOptionsStore } from '@/stores/modules/options';
 import { LOGIN_URL } from '@/config';
 import router from '@/router';
 import type { RouteRecordRaw } from 'vue-router';
@@ -14,16 +13,16 @@ const modules = import.meta.glob('@/views/**/*.vue');
 export const initDynamicRouter = async () => {
   const userStore = useUserStore();
   const authStore = useAuthStore();
-  const optionsStore = useOptionsStore();
 
   try {
     if (authStore.isLoaded) return;
-    // 1.获取菜单列表 && 按钮权限列表 && 字典列表
+    // 1.获取菜单列表 && 按钮权限列表
     await authStore.getAuthMenuList();
     await authStore.getAuthButtonList();
     await authStore.getAuthRoleList();
-    optionsStore.setReloadOptions();
-    await optionsStore.getAllDictList();
+    // 字典功能已禁用，不再请求字典数据
+    // optionsStore.setReloadOptions();
+    // await optionsStore.getAllDictList();
     await authStore.setLoaded();
 
     // 2.判断当前用户有没有菜单权限

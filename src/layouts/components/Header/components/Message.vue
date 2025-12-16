@@ -46,7 +46,7 @@
 import { onMounted, ref } from 'vue';
 import mittBus from '@/utils/mittBus';
 import { ElNotification } from 'element-plus';
-import { getNoticeMessageListApi, getTodoMessageListApi, getUnreadMessageCountApi } from '@/api/modules/system/message';
+// import { getNoticeMessageListApi, getTodoMessageListApi, getUnreadMessageCountApi } from '@/api/modules/system/message';
 import type { MessageRow } from '@/api/types/system/message';
 import { useRouter } from 'vue-router';
 
@@ -60,23 +60,26 @@ const msgList = ref<MessageRow[]>([]);
 const todoList = ref<MessageRow[]>([]);
 
 const getUnreadCount = () => {
-  getUnreadMessageCountApi().then(res => {
-    allCount.value = res.data.all;
-    msgCount.value = res.data.msg;
-    todoCount.value = res.data.todo;
-  });
+  // 消息功能已禁用，不再请求消息计数
+  // getUnreadMessageCountApi().then(res => {
+  //   allCount.value = res.data.all;
+  //   msgCount.value = res.data.msg;
+  //   todoCount.value = res.data.todo;
+  // });
 };
 
 const getMsgList = () => {
-  getNoticeMessageListApi().then(res => {
-    msgList.value = res.data;
-  });
+  // 消息功能已禁用
+  // getNoticeMessageListApi().then(res => {
+  //   msgList.value = res.data;
+  // });
 };
 
 const getTodoList = () => {
-  getTodoMessageListApi().then(res => {
-    todoList.value = res.data;
-  });
+  // 消息功能已禁用
+  // getTodoMessageListApi().then(res => {
+  //   todoList.value = res.data;
+  // });
 };
 
 const handleMessage = (data: any) => {
