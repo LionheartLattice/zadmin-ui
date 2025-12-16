@@ -22,7 +22,7 @@ export const getAuthButtonListApi = () => {
 
 // 用户退出登录
 export const logoutApi = () => {
-  return http.post(ADMIN_MODULE + `/z_login/logout`);
+  return http.get(ADMIN_MODULE + `/z_login/logout`);
 };
 
 // 获取用户角色
