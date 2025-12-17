@@ -135,6 +135,27 @@ export const useAuthStore = defineStore('auth', () => {
 
     const afterMenuList: Menu.MenuOptions[] = [
       {
+        id: 'tenant_manage_id',
+        pid: '0',
+        path: '/system/tenant',
+        name: 'tenantManage',
+        sort: 400,
+        component: '/system/tenantManage/index',
+        meta: {
+          icon: 'Menu',
+          title: '租户管理',
+          isLink: '',
+          isHidden: 'F',
+          isFull: 'F',
+          isAffix: 'F',
+          isKeepAlive: 'T',
+          useDataScope: 'F'
+        },
+        children: [],
+        permissions: '',
+        menuTypeCd: '1002002'
+      },
+      {
         id: 'c6328b228c2c4e6bb5b1beb83110dcfa',
         pid: '0',
         path: '/demo',
