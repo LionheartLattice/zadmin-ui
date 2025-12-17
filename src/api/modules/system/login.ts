@@ -30,6 +30,11 @@ export const getAuthRoleListApi = () => {
   return http.get<string[]>(ADMIN_MODULE + `/sys-menu/user/roles`, {});
 };
 
+// 获取当前登录用户信息
+export const getCurrentUserApi = () => {
+  return http.get<LoginResult>(ADMIN_MODULE + `/z_login/current-user`);
+};
+
 // 获取认证挑战参数（包含验证码）
 export const getChallengeApi = (clientId: string) => {
   // 后端接口定义为 @RequestBody String clientId，接收纯文本内容

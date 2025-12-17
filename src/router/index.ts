@@ -62,19 +62,28 @@ router.beforeEach(async (to, from, next) => {
     return next({ path: LOGIN_URL, replace: true });
   }
 
-  // 6.如果没有菜单列表，就重新请求菜单列表并添加动态路由
+  // 6.如果需要刷新用户数据（刷新页面时 needRefresh 为 true），重新获取用户信息
+  if (userStore.needRefresh && userStore.token) {
+    console.log('刷新页面，获取当前用户信息...');
+    const success = await userStore.fetchCurrentUser();
+    if (!success) {
+      return next({ path: LOGIN_URL, replace: true });
+    }
+  }
+
+  // 7.如果没有菜单列表，就重新请求菜单列表并添加动态路由
   if (!authStore.isLoaded) {
     await initDynamicRouter();
     return next({ ...to, replace: true });
   }
 
-  // 7.存储 routerName 做按钮权限筛选
+  // 8.存储 routerName 做按钮权限筛选
   authStore.setRouteName(to.name as string);
 
   // 字典功能已禁用，不再请求字典数据
   // optionsStore.getAllDictList();
 
-  // 8.正常访问页面
+  // 9.正常访问页面
   next();
 });
 
